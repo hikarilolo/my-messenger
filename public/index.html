@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Messenger</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+    <div class="chat-container">
+        <div class="chat-header">
+            <button class="theme-switcher" onclick="switchTheme()">🌙 Тёмная</button>
+            <h1>💬 Messenger</h1>
+            <div class="online-dot" title="Онлайн"></div>
+        </div>
+        
+        <div id="chat-messages" class="chat-messages">
+            <!-- Сообщения будут здесь -->
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Напишите сообщение...">
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
