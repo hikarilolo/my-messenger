@@ -1,89 +1,90 @@
-let currentUser = 'User'; // временное значение
+// script.js - ПРОСТОЙ ОБЩИЙ ЧАТ
+let currentUser = null;
+let socket = null;
 
-const socket = io();
-const messageInput = document.getElementById('message-input');
-const chatMessages = document.getElementById('chat-messages');
+function joinChat() {
+    const username = document.getElementById('username-input').value.trim();
+    
+    if (!username) {
+        alert('Введите ваше имя');
+        return;
+    }
 
-// Получаем наше имя от сервера
-socket.on('user assigned', (userName) => {
-    currentUser = userName;
-    console.log('Вы вошли как:', currentUser);
-});
+    currentUser = username;
+    
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('chat-screen').style.display = 'flex';
+    document.getElementById('current-user').textContent = username;
+    
+    socket = io();
+    socket.emit('user join', username);
+    
+    socket.on('chat history', showChatHistory);
+    socket.on('new message', addMessageToChat);
+    socket.on('online users', updateOnlineUsers);
+    
+    // СРАЗУ АКТИВИРУЕМ ПОЛЕ ВВОДА
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.querySelector('.send-button');
+    messageInput.disabled = false;
+    sendButton.disabled = false;
+    messageInput.focus();
+}
 
 function sendMessage() {
-    const message = messageInput.value.trim();
-    if (message) {
-        socket.emit('send message', {
-            text: message,
-            sender: currentUser, // ← Используем уникальное имя!
-            timestamp: new Date().toLocaleTimeString()
-        });
-        messageInput.value = '';
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    
+    if (text) {
+        socket.emit('send message', text);
+        input.value = '';
     }
 }
 
-// Остальной код остается таким же...
-socket.on('message history', (history) => {
-    chatMessages.innerHTML = '';
-    history.forEach(message => {
+function showChatHistory(messages) {
+    const container = document.getElementById('messages-container');
+    container.innerHTML = '';
+    
+    messages.forEach(message => {
         addMessageToChat(message);
     });
-});
-
-socket.on('new message', (message) => {
-    addMessageToChat(message);
-});
+    
+    container.scrollTop = container.scrollHeight;
+}
 
 function addMessageToChat(message) {
+    const container = document.getElementById('messages-container');
     const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
     
-    // Теперь сравниваем с currentUser
-    if (message.sender === currentUser) {
-        messageElement.classList.add('sent'); // мои сообщения справа
+    messageElement.classList.add('message');
+    if (message.from === currentUser) {
+        messageElement.classList.add('sent');
     } else {
-        messageElement.classList.add('received'); // чужие сообщения слева
+        messageElement.classList.add('received');
     }
     
     messageElement.innerHTML = `
-        <div class="message-sender">${message.sender}</div>
-        <div class="message-text">${message.text}</div>
-        <div class="message-time">${message.timestamp}</div>
+        <div class="message-bubble">
+            <div class="message-sender">${message.from}</div>
+            <div class="message-text">${message.text}</div>
+            <div class="message-time">${message.timestamp}</div>
+        </div>
     `;
     
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    container.appendChild(messageElement);
+    container.scrollTop = container.scrollHeight;
 }
 
-function showSystemMessage(text) {
-    const systemElement = document.createElement('div');
-    systemElement.classList.add('system-message');
-    systemElement.textContent = text;
-    
-    chatMessages.appendChild(systemElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+function updateOnlineUsers(users) {
+    const onlineCount = document.getElementById('online-count');
+    onlineCount.textContent = users.length;
 }
-// Переключение тем
-function switchTheme() {
-    const body = document.body;
-    const themeSwitcher = document.querySelector('.theme-switcher');
-    
-    // Добавляем анимацию перехода
-    body.classList.add('theme-transition');
-    
-    if (body.classList.contains('theme-dark')) {
-        body.classList.replace('theme-dark', 'theme-light');
-        themeSwitcher.textContent = '☀️ Светлая';
-    } else if (body.classList.contains('theme-light')) {
-        body.classList.replace('theme-light', 'theme-neon');
-        themeSwitcher.textContent = '🌠 Неоновая';
-    } else {
-        body.classList.replace('theme-neon', 'theme-dark');
-        themeSwitcher.textContent = '🌙 Тёмная';
-    }
-    
-    // Убираем класс анимации после завершения
-    setTimeout(() => {
-        body.classList.remove('theme-transition');
-    }, 500);
-}
+
+// Enter для отправки
+document.getElementById('message-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+
+document.getElementById('username-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') joinChat();
+});

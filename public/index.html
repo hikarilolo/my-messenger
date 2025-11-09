@@ -3,24 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Messenger</title>
+    <title>Общий Чат</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-dark">
-    <div class="chat-container">
-        <div class="chat-header">
-            <button class="theme-switcher" onclick="switchTheme()">🌙 Тёмная</button>
-            <h1>💬 Messenger</h1>
-            <div class="online-dot" title="Онлайн"></div>
+<body>
+    <!-- Экран входа -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">💬 Общий Чат</h1>
+            <input type="text" id="username-input" class="login-input" placeholder="Ваше имя">
+            <button onclick="joinChat()" class="login-button">Войти в чат</button>
         </div>
-        
-        <div id="chat-messages" class="chat-messages">
-            <!-- Сообщения будут здесь -->
+    </div>
+
+    <!-- Основной интерфейс -->
+    <div id="chat-screen" class="chat-app" style="display: none;">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Общий чат</h3>
+            </div>
+            <div class="online-users">
+                <h4>Онлайн: <span id="online-count">0</span></h4>
+            </div>
         </div>
-        
-        <div class="input-area">
-            <input type="text" id="message-input" placeholder="Напишите сообщение...">
-            <button onclick="sendMessage()">➤</button>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-avatar">💬</div>
+                <div>
+                    <div class="chat-title">Общий чат</div>
+                    <div class="chat-status">Вы: <span id="current-user"></span></div>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+                <!-- Сообщения будут здесь -->
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="message-input" class="message-input" placeholder="Напишите сообщение..." disabled>
+                    <button onclick="sendMessage()" class="send-button" disabled>➤</button>
+                </div>
+            </div>
         </div>
     </div>
 
